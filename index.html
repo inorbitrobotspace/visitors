@@ -119,28 +119,31 @@ const WORKER_URL = 'https://inorbitrobotspace.team-32e.workers.dev';
 // ───────────────────────────────────────────────────────────
 
 let cfg = { status: 'Ready', videoUrl: '', labels: ['Action 1','Action 2','Action 3','Action 4'], enabled: [true,true,true,true] };
+let sessionId = null;
 let sessionExpiry = null;
 let actionInProgress = false;
 let timerInterval;
+let fingerprint = null;
 
 async function init() {
+  fingerprint = await getFingerprint();
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
 
   if (!token) { showInvalid('No access token found. Please scan the QR code.'); return; }
 
   try {
-    const fp = await getFingerprint();
     const res = await fetch(`${WORKER_URL}/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, fingerprint: fp })
+      body: JSON.stringify({ token, fingerprint })
     });
     const data = await res.json();
 
     if (!data.valid) { showInvalid(); return; }
 
     cfg = data.config;
+    sessionId = data.session;
     sessionExpiry = data.expiry;
     showControls();
   } catch(e) {
@@ -197,15 +200,40 @@ function lock() {
 function pressBtn(i) {
   if (!cfg.enabled[i] || actionInProgress) return;
   if (i === 0) triggerVideo();
+  else sendAction(i);
+}
+
+async function sendAction(i) {
+  actionInProgress = true;
+  try {
+    const res = await fetch(`${WORKER_URL}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: sessionId, action: String(i), fingerprint })
+    });
+    const data = await res.json();
+    if (data.reason === 'expired') { lock(); return; }
+  } catch(e) {
+    console.error('Action error:', e);
+  }
+  actionInProgress = false;
 }
 
 function triggerVideo() {
   actionInProgress = true;
-  const vc = document.getElementById('vidContent');
-  vc.innerHTML = cfg.videoUrl
-    ? `<video src="${cfg.videoUrl}" autoplay controls style="border-radius:12px;max-width:90vw;max-height:70vh;"></video>`
-    : '<p class="no-video">No video configured.</p>';
-  document.getElementById('vidOverlay').classList.add('open');
+  // Also verify session server-side before showing video
+  fetch(`${WORKER_URL}/action`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session: sessionId, action: '0', fingerprint })
+  }).then(r => r.json()).then(data => {
+    if (data.reason === 'expired') { lock(); return; }
+    const vc = document.getElementById('vidContent');
+    vc.innerHTML = cfg.videoUrl
+      ? `<video src="${cfg.videoUrl}" autoplay controls style="border-radius:12px;max-width:90vw;max-height:70vh;"></video>`
+      : '<p class="no-video">No video configured.</p>';
+    document.getElementById('vidOverlay').classList.add('open');
+  }).catch(() => { actionInProgress = false; });
 }
 
 function closeVideo() {
