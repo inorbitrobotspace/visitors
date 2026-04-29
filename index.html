@@ -7,68 +7,35 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0a0f1e; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; font-family: sans-serif; color: #e0f0ff; }
-
   h1 { font-size: 18px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #7dd4fc; margin-bottom: 0.4rem; text-align: center; }
   .status-msg { font-size: 13px; color: #4a7fa5; margin-bottom: 2rem; text-align: center; min-height: 18px; }
-
-  /* Checking screen */
   .checking-screen { display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .spinner { width: 36px; height: 36px; border: 3px solid #1e3a5a; border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .checking-label { font-size: 13px; color: #4a7fa5; letter-spacing: 0.08em; }
-
-  /* Invalid screen */
   .invalid-screen { display: none; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
   .invalid-icon { font-size: 48px; }
   .invalid-title { font-size: 16px; color: #e24b4a; font-weight: 500; }
   .invalid-sub { font-size: 13px; color: #4a7fa5; max-width: 260px; line-height: 1.6; }
-
-  /* Control screen */
   .control-screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 420px; }
   .control-screen.visible { display: flex; }
-
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; margin-bottom: 1rem; }
-  .btn {
-    aspect-ratio: 1; border-radius: 16px;
-    border: 2px solid #1e3a5a; background: #0f1e35;
-    color: #a0c8e8; font-size: 18px; font-weight: 500;
-    letter-spacing: 0.05em; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s, color 0.15s;
-    user-select: none;
-  }
+  .btn { aspect-ratio: 1; border-radius: 16px; border: 2px solid #1e3a5a; background: #0f1e35; color: #a0c8e8; font-size: 18px; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s, transform 0.1s, color 0.15s; user-select: none; }
   .btn:hover:not(.disabled) { background: #0d2d4f; border-color: #38bdf8; color: #38bdf8; }
   .btn:active:not(.disabled) { transform: scale(0.94); }
   .btn.disabled { opacity: 0.3; cursor: not-allowed; }
   .btn-1 { border-color: #0ea5e9; color: #38bdf8; }
-
   .session-timer { font-size: 11px; color: #1e3a5a; margin-top: 0.5rem; }
   .session-timer.warning { color: #e24b4a; }
-
-  /* Lock overlay */
-  .lock-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,5,15,0.96); z-index: 50;
-    align-items: center; justify-content: center; flex-direction: column; gap: 12px;
-  }
+  .lock-overlay { display: none; position: fixed; inset: 0; background: rgba(0,5,15,0.96); z-index: 50; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
   .lock-overlay.open { display: flex; }
   .lock-overlay p { color: #4a7fa5; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
   .lock-overlay small { color: #1e3a5a; font-size: 11px; }
-
-  /* Video overlay */
-  .vid-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,5,15,0.95); z-index: 99;
-    align-items: center; justify-content: center; flex-direction: column; gap: 20px;
-  }
+  .vid-overlay { display: none; position: fixed; inset: 0; background: rgba(0,5,15,0.95); z-index: 99; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
   .vid-overlay.open { display: flex; }
   .vid-overlay video { border-radius: 12px; max-width: 90vw; max-height: 70vh; }
   .no-video { color: rgba(255,255,255,0.35); font-size: 14px; }
-  .dismiss-btn {
-    padding: 10px 28px; background: transparent;
-    border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
-    color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer;
-  }
+  .dismiss-btn { padding: 10px 28px; background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; }
   .dismiss-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
 </style>
 </head>
@@ -77,20 +44,17 @@
 <h1>Robot Control Hub</h1>
 <div class="status-msg" id="statusMsg">Verifying access...</div>
 
-<!-- Checking screen -->
 <div class="checking-screen" id="checkingScreen">
   <div class="spinner"></div>
-  <div class="checking-label">Verifying QR code...</div>
+  <div class="checking-label">Verifying access...</div>
 </div>
 
-<!-- Invalid screen -->
 <div class="invalid-screen" id="invalidScreen">
   <div class="invalid-icon">⛔</div>
   <div class="invalid-title">Access denied</div>
   <div class="invalid-sub">This QR code has expired or already been used. Please scan the latest code from the display screen.</div>
 </div>
 
-<!-- Control screen -->
 <div class="control-screen" id="controlScreen">
   <div class="grid">
     <div class="btn btn-1" id="btn0" onclick="pressBtn(0)">Action 1</div>
@@ -101,49 +65,93 @@
   <div class="session-timer" id="sessionTimer"></div>
 </div>
 
-<!-- Lock overlay -->
 <div class="lock-overlay" id="lockOverlay">
   <p>Session expired</p>
   <small>Please scan the new QR code to continue</small>
 </div>
 
-<!-- Video overlay -->
 <div class="vid-overlay" id="vidOverlay">
   <div id="vidContent"><p class="no-video">No video configured.</p></div>
   <button class="dismiss-btn" onclick="closeVideo()">Dismiss</button>
 </div>
 
 <script>
-// ── CONFIGURE THIS ──────────────────────────────────────────
+// ── Worker URL ────────────────────────────────────────────────
+// All requests go here — token verification, button presses, session checks
 const WORKER_URL = 'https://inorbitrobotspace.team-32e.workers.dev';
-// ───────────────────────────────────────────────────────────
 
+// ── State ─────────────────────────────────────────────────────
+// cfg        — button labels, video URL, enabled/disabled (from Worker)
+// sessionExpiry — when this visitor's session ends (set by Worker)
+// fingerprint   — browser fingerprint (used to tie session to device)
+// actionInProgress — prevents double-pressing buttons
 let cfg = { status: 'Ready', videoUrl: '', labels: ['Action 1','Action 2','Action 3','Action 4'], enabled: [true,true,true,true] };
-let sessionId = null;
 let sessionExpiry = null;
+let fingerprint = null;
 let actionInProgress = false;
 let timerInterval;
-let fingerprint = null;
 
+// ── Fingerprint ───────────────────────────────────────────────
+// Generates a unique ID for this browser/device
+// Used to tie the session to the device that scanned the QR code
+// STORED: nowhere permanently — generated fresh each page load
+// SENT TO: Worker with every request so it can verify same device
+async function getFingerprint() {
+  const raw = [navigator.userAgent, navigator.language, screen.width, screen.height, Intl.DateTimeFormat().resolvedOptions().timeZone].join('|');
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 32);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+// First thing that runs when the page loads
+// Tries to resume an existing session first (via HTTP-only cookie)
+// If no session → falls back to verifying the QR token from the URL
+// FLOW: page loads → try /resume → if valid, show controls
+//                              → if not, try /verify with URL token
+//                              → if not, show access denied
 async function init() {
   fingerprint = await getFingerprint();
+
+  // Step 1 — try to resume existing session via HTTP-only cookie
+  // The cookie is sent automatically by the browser — JS never touches it
+  try {
+    const res = await fetch(`${WORKER_URL}/resume`, {
+      credentials: 'include' // tells browser to send the HTTP-only cookie
+    });
+    const data = await res.json();
+    if (data.valid) {
+      cfg = data.config;
+      sessionExpiry = data.expiry;
+      showControls();
+      return; // session resumed — no need to check token
+    }
+  } catch(e) {}
+
+  // Step 2 — no valid session cookie, check for QR token in URL
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
-
   if (!token) { showInvalid('No access token found. Please scan the QR code.'); return; }
 
+  // Step 3 — verify the QR token with the Worker
+  // Worker checks: is token valid? already used? same device?
+  // If valid → Worker creates session in KV, sets HTTP-only cookie
   try {
     const res = await fetch(`${WORKER_URL}/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // tells browser to accept the cookie the Worker sets
       body: JSON.stringify({ token, fingerprint })
     });
     const data = await res.json();
-
-    if (!data.valid) { showInvalid(); return; }
-
+    if (!data.valid) {
+      if (data.reason === 'at_capacity') {
+        showInvalid('All 10 visitor slots are currently full. Please try again shortly.');
+      } else {
+        showInvalid();
+      }
+      return;
+    }
     cfg = data.config;
-    sessionId = data.session;
     sessionExpiry = data.expiry;
     showControls();
   } catch(e) {
@@ -151,18 +159,15 @@ async function init() {
   }
 }
 
-async function getFingerprint() {
-  const raw = [navigator.userAgent, navigator.language, screen.width, screen.height, Intl.DateTimeFormat().resolvedOptions().timeZone].join('|');
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('').slice(0,32);
-}
-
+// ── Show invalid screen ───────────────────────────────────────
 function showInvalid(msg) {
   document.getElementById('checkingScreen').style.display = 'none';
   document.getElementById('invalidScreen').style.display = 'flex';
   document.getElementById('statusMsg').textContent = msg || 'Access denied';
 }
 
+// ── Show controls ─────────────────────────────────────────────
+// Renders the 4 buttons with labels and enabled/disabled state from config
 function showControls() {
   document.getElementById('checkingScreen').style.display = 'none';
   document.getElementById('controlScreen').classList.add('visible');
@@ -174,6 +179,10 @@ function showControls() {
   startSessionTimer();
 }
 
+// ── Session timer ─────────────────────────────────────────────
+// Counts down from sessionExpiry (set by Worker, not JS)
+// When it hits zero → waits for any action to finish → locks
+// IMPORTANT: this timer is just visual — the Worker enforces the real expiry
 function startSessionTimer() {
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
@@ -197,6 +206,11 @@ function lock() {
   document.getElementById('lockOverlay').classList.add('open');
 }
 
+// ── Button press ──────────────────────────────────────────────
+// Sends the action to the Worker for server-side validation
+// Worker checks: is session valid? is button enabled? not expired?
+// If session expired → locks immediately
+// Robot API call happens inside the Worker, not here
 function pressBtn(i) {
   if (!cfg.enabled[i] || actionInProgress) return;
   if (i === 0) triggerVideo();
@@ -209,7 +223,8 @@ async function sendAction(i) {
     const res = await fetch(`${WORKER_URL}/action`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session: sessionId, action: String(i), fingerprint })
+      credentials: 'include', // sends HTTP-only cookie automatically
+      body: JSON.stringify({ action: String(i), fingerprint })
     });
     const data = await res.json();
     if (data.reason === 'expired') { lock(); return; }
@@ -219,13 +234,16 @@ async function sendAction(i) {
   actionInProgress = false;
 }
 
+// ── Video trigger ─────────────────────────────────────────────
+// Action 1 — verifies session server-side before showing video
+// If session expired → locks instead of showing video
 function triggerVideo() {
   actionInProgress = true;
-  // Also verify session server-side before showing video
   fetch(`${WORKER_URL}/action`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ session: sessionId, action: '0', fingerprint })
+    credentials: 'include',
+    body: JSON.stringify({ action: '0', fingerprint })
   }).then(r => r.json()).then(data => {
     if (data.reason === 'expired') { lock(); return; }
     const vc = document.getElementById('vidContent');
