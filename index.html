@@ -113,24 +113,30 @@ async function init() {
   fingerprint = await getFingerprint();
 
   // Step 1 — try to resume existing session via HTTP-only cookie
-  // The cookie is sent automatically by the browser — JS never touches it
   try {
     const res = await fetch(`${WORKER_URL}/resume`, {
-      credentials: 'include' // tells browser to send the HTTP-only cookie
+      credentials: 'include'
     });
     const data = await res.json();
     if (data.valid) {
       cfg = data.config;
       sessionExpiry = data.expiry;
       showControls();
-      return; // session resumed — no need to check token
+      return;
     }
-  } catch(e) {}
+    // Session expired or invalid — fall through to token check
+  } catch(e) {
+    // Network error — fall through to token check
+  }
 
-  // Step 2 — no valid session cookie, check for QR token in URL
+  // Step 2 — check for QR token in URL
+  // Remove old token from URL bar so it can't be reused from history
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
   if (!token) { showInvalid('No access token found. Please scan the QR code.'); return; }
+
+  // Clear token from URL bar immediately so history can't be reused
+  window.history.replaceState({}, '', window.location.pathname);
 
   // Step 3 — verify the QR token with the Worker
   // Worker checks: is token valid? already used? same device?
